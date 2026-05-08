@@ -77,7 +77,33 @@ export default function MadreWeb() {
     l1.rel = "stylesheet";
     l1.href = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap";
     document.head.appendChild(l1);
-    return () => document.head.removeChild(l1);
+    // Responsive CSS
+    const style = document.createElement("style");
+    style.textContent = `
+      @media(max-width:768px){
+        .madre-section{padding:48px 18px !important;}
+        .madre-grid-2{grid-template-columns:1fr !important;}
+        .madre-grid-num{grid-template-columns:48px 1fr !important;gap:20px !important;}
+        .madre-hero-title{font-size:36px !important;}
+        .madre-section-title{font-size:28px !important;}
+        .madre-footer-inner{flex-direction:column;text-align:center;gap:16px !important;}
+        .madre-footer-nav{justify-content:center;}
+        .madre-contact-grid{grid-template-columns:1fr !important;}
+        .madre-steps-grid{grid-template-columns:1fr !important;}
+      }
+    `;
+    document.head.appendChild(style);
+    return () => { document.head.removeChild(l1); document.head.removeChild(style); };
+  }, []);
+
+  /* ── Mobile detection ── */
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width:768px)");
+    setIsMobile(mq.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
 
   useEffect(() => { window.scrollTo(0,0); }, [page]);
@@ -124,7 +150,7 @@ export default function MadreWeb() {
       <header style={{
         position:"sticky", top:0, zIndex:100,
         background: P.carbon, color: P.bg,
-        padding:"0 24px", borderBottom:`1px solid ${P.carbon}`,
+        padding:"0 20px", borderBottom:`1px solid ${P.carbon}`,
       }}>
         <div style={{ maxWidth:1100, margin:"0 auto", display:"flex", alignItems:"center", justifyContent:"space-between", height:60 }}>
           {/* Logo */}
@@ -138,28 +164,70 @@ export default function MadreWeb() {
           </button>
 
           {/* Desktop nav */}
-          <nav style={{ display:"flex", gap:32, alignItems:"center" }}>
-            <div style={{ display:"flex", gap:28 }}>
-              {navItems.map(([p,label])=>(
-                <button key={p} onClick={()=>nav(p)} style={{
-                  background:"none", border:"none", cursor:"pointer",
-                  fontFamily: P.bodyFont, fontSize:13, fontWeight:500,
-                  color: page===p ? P.accent : P.bg,
-                  letterSpacing:"0.04em", padding:0,
-                  borderBottom: page===p ? `1px solid ${P.accent}` : "1px solid transparent",
-                  transition:"all 0.2s",
-                }}>{label}</button>
-              ))}
-            </div>
-            <a href={WA_URL} target="_blank" rel="noreferrer" style={{
-              background: P.accent, color:"#FAF7F2",
-              padding:"9px 20px", borderRadius:4,
-              fontSize:12, fontWeight:700, letterSpacing:"0.06em",
-              textDecoration:"none", whiteSpace:"nowrap",
-              textTransform:"uppercase",
-            }}>Pedir por WhatsApp</a>
-          </nav>
+          {!isMobile && (
+            <nav style={{ display:"flex", gap:32, alignItems:"center" }}>
+              <div style={{ display:"flex", gap:28 }}>
+                {navItems.map(([p,label])=>(
+                  <button key={p} onClick={()=>nav(p)} style={{
+                    background:"none", border:"none", cursor:"pointer",
+                    fontFamily: P.bodyFont, fontSize:13, fontWeight:500,
+                    color: page===p ? P.accent : P.bg,
+                    letterSpacing:"0.04em", padding:0,
+                    borderBottom: page===p ? `1px solid ${P.accent}` : "1px solid transparent",
+                    transition:"all 0.2s",
+                  }}>{label}</button>
+                ))}
+              </div>
+              <a href={WA_URL} target="_blank" rel="noreferrer" style={{
+                background: P.accent, color:"#FAF7F2",
+                padding:"9px 20px", borderRadius:4,
+                fontSize:12, fontWeight:700, letterSpacing:"0.06em",
+                textDecoration:"none", whiteSpace:"nowrap",
+                textTransform:"uppercase",
+              }}>Pedir por WhatsApp</a>
+            </nav>
+          )}
+
+          {/* Mobile hamburger */}
+          {isMobile && (
+            <button onClick={()=>setMenuOpen(!menuOpen)} style={{
+              background:"none", border:"none", cursor:"pointer", padding:8,
+              display:"flex", flexDirection:"column", gap:5,
+            }}>
+              <div style={{ width:22, height:2, background: P.bg, borderRadius:1, transition:"all 0.2s",
+                transform: menuOpen ? "rotate(45deg) translateY(7px)" : "none" }}/>
+              <div style={{ width:22, height:2, background: P.bg, borderRadius:1, transition:"all 0.2s",
+                opacity: menuOpen ? 0 : 1 }}/>
+              <div style={{ width:22, height:2, background: P.bg, borderRadius:1, transition:"all 0.2s",
+                transform: menuOpen ? "rotate(-45deg) translateY(-7px)" : "none" }}/>
+            </button>
+          )}
         </div>
+
+        {/* Mobile menu dropdown */}
+        {isMobile && menuOpen && (
+          <div style={{
+            background: P.carbon, padding:"8px 0 20px",
+            borderTop:`1px solid rgba(255,255,255,0.1)`,
+          }}>
+            {navItems.map(([p,label])=>(
+              <button key={p} onClick={()=>nav(p)} style={{
+                display:"block", width:"100%", textAlign:"left",
+                background:"none", border:"none", cursor:"pointer",
+                fontFamily: P.bodyFont, fontSize:15, fontWeight:500,
+                color: page===p ? P.accent : P.bg,
+                padding:"12px 20px", letterSpacing:"0.04em",
+              }}>{label}</button>
+            ))}
+            <a href={WA_URL} target="_blank" rel="noreferrer" style={{
+              display:"block", margin:"12px 20px 0", textAlign:"center",
+              background: P.accent, color:"#FAF7F2",
+              padding:"12px 20px", borderRadius:4,
+              fontSize:13, fontWeight:700, letterSpacing:"0.06em",
+              textDecoration:"none", textTransform:"uppercase",
+            }}>Pedir por WhatsApp</a>
+          </div>
+        )}
       </header>
 
       {/* ═══════════════════════════════════════════════════════
@@ -169,20 +237,20 @@ export default function MadreWeb() {
         <main>
           {/* Hero */}
           <section style={{
-            position:"relative", height:"85vh", minHeight:520,
+            position:"relative", height: isMobile ? "auto" : "85vh", minHeight: isMobile ? 400 : 520,
             display:"flex", alignItems:"flex-end",
             overflow:"hidden", background: P.carbon,
           }}>
             <img src="/pan.jpeg" alt="Pan artesanal MADRE"
               style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", opacity:0.55, objectPosition:"center 30%" }}/>
-            <div style={{ position:"relative", zIndex:2, padding:"0 32px 56px", maxWidth:720 }}>
+            <div style={{ position:"relative", zIndex:2, padding: isMobile ? "60px 20px 40px" : "0 32px 56px", maxWidth:720 }}>
               <div style={{
                 display:"inline-block", background: P.accent, color:"#FAF7F2",
                 fontSize:10, fontWeight:700, letterSpacing:"0.16em",
                 textTransform:"uppercase", padding:"5px 14px", marginBottom:20,
               }}>Santiago · Sector Oriente</div>
-              <h1 style={{
-                fontFamily: P.headFont, fontSize:"clamp(42px, 7vw, 80px)",
+              <h1 className="madre-hero-title" style={{
+                fontFamily: P.headFont, fontSize:"clamp(36px, 7vw, 80px)",
                 fontWeight:700, color:"#FAF7F2", margin:"0 0 20px",
                 lineHeight:1.05, letterSpacing:"-0.01em",
               }}>
@@ -253,7 +321,8 @@ export default function MadreWeb() {
           </section>
 
           {/* Historia teaser */}
-          <section style={{ maxWidth:1100, margin:"0 auto", padding:"80px 32px", display:"grid", gridTemplateColumns:"1fr 1fr", gap:64, alignItems:"center" }}>
+          <section className="madre-section" style={{ maxWidth:1100, margin:"0 auto", padding:"80px 32px" }}>
+            <div className="madre-grid-2" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:isMobile?32:64, alignItems:"center" }}>
             <div>
               <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color: P.accent, marginBottom:16 }}>Nuestra historia</div>
               <h2 style={{ fontFamily: P.headFont, fontSize:"clamp(28px,4vw,48px)", fontWeight:700, margin:"0 0 24px", lineHeight:1.1 }}>
@@ -270,12 +339,13 @@ export default function MadreWeb() {
               }}>Conocer la historia</button>
             </div>
             <div style={{
-              background: P.support, height:400, borderRadius:4,
+              background: P.support, height: isMobile ? 250 : 400, borderRadius:4,
               display:"flex", alignItems:"center", justifyContent:"center",
               color:"rgba(255,255,255,0.3)", fontSize:12, letterSpacing:"0.1em",
               textTransform:"uppercase",
             }}>
               [Foto del proceso]
+            </div>
             </div>
           </section>
         </main>
@@ -285,7 +355,7 @@ export default function MadreWeb() {
           PRODUCTOS
       ═══════════════════════════════════════════════════════ */}
       {page==="productos" && (
-        <main style={{ maxWidth:1100, margin:"0 auto", padding:"64px 32px" }}>
+        <main style={{ maxWidth:1100, margin:"0 auto", padding: isMobile ? "40px 18px" : "64px 32px" }}>
           <PageHeader P={P} pre="Catálogo" title="Cada pan tiene su razón de ser." />
 
           <SectionDivider P={P} title="Línea de panes"/>
@@ -353,7 +423,7 @@ export default function MadreWeb() {
       ═══════════════════════════════════════════════════════ */}
       {page==="nosotros" && (
         <main>
-          <section style={{ background: P.carbon, color:"#FAF7F2", padding:"96px 32px" }}>
+          <section style={{ background: P.carbon, color:"#FAF7F2", padding: isMobile ? "56px 20px" : "96px 32px" }}>
             <div style={{ maxWidth:800, margin:"0 auto" }}>
               <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color: P.accent, marginBottom:24 }}>La historia detrás de la masa</div>
               <h1 style={{ fontFamily: P.headFont, fontSize:"clamp(36px,6vw,72px)", fontWeight:700, margin:"0 0 32px", lineHeight:1.05 }}>
@@ -386,7 +456,7 @@ export default function MadreWeb() {
                 text:"Madre como concepto universal de cuidado, alimento real y origen. Sin nada que sea industrial, procesado o prescindible. Madre es la promesa de que lo que entra en el pan es lo que debería entrar — y nada más. Esta honestidad con el producto es la que justifica el precio y la que construye la confianza.",
               },
             ].map((item,i)=>(
-              <div key={item.num} style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:40, marginBottom:64, borderBottom:`1px solid ${P.border}`, paddingBottom:64, ...(i===2?{borderBottom:"none", paddingBottom:0,}:{}) }}>
+              <div key={item.num} className="madre-grid-num" style={{ display:"grid", gridTemplateColumns:"80px 1fr", gap:40, marginBottom:isMobile?40:64, borderBottom:`1px solid ${P.border}`, paddingBottom:isMobile?40:64, ...(i===2?{borderBottom:"none", paddingBottom:0,}:{}) }}>
                 <div style={{ fontFamily: P.headFont, fontSize:48, fontWeight:700, color: P.border, lineHeight:1 }}>{item.num}</div>
                 <div>
                   <div style={{ width:40, height:3, background:item.color, marginBottom:20 }}/>
@@ -438,10 +508,10 @@ export default function MadreWeb() {
           CONTACTO
       ═══════════════════════════════════════════════════════ */}
       {page==="contacto" && (
-        <main style={{ maxWidth:800, margin:"0 auto", padding:"64px 32px" }}>
+        <main style={{ maxWidth:800, margin:"0 auto", padding: isMobile ? "40px 18px" : "64px 32px" }}>
           <PageHeader P={P} pre="Contacto" title="Todo pasa por WhatsApp." />
 
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, marginBottom:48 }}>
+          <div className="madre-contact-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:32, marginBottom:48 }}>
             <div style={{ background: P.card, border:`1px solid ${P.border}`, borderRadius:4, padding:32 }}>
               <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.14em", textTransform:"uppercase", color: P.accent, marginBottom:12 }}>Pedidos</div>
               <h3 style={{ fontFamily: P.headFont, fontSize:22, fontWeight:700, margin:"0 0 12px" }}>WhatsApp</h3>
@@ -481,7 +551,7 @@ export default function MadreWeb() {
 
           <div style={{ textAlign:"center", padding:"40px 0" }}>
             <h3 style={{ fontFamily: P.headFont, fontSize:26, fontWeight:700, margin:"0 0 12px" }}>¿Cómo funciona?</h3>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:24, marginTop:32, textAlign:"left" }}>
+            <div className="madre-steps-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:24, marginTop:32, textAlign:"left" }}>
               {[
                 ["01","Escríbenos","Dinos qué productos quieres y para cuándo."],
                 ["02","Confirmamos","Te avisamos disponibilidad y fecha de entrega."],
@@ -500,8 +570,8 @@ export default function MadreWeb() {
       )}
 
       {/* ── Footer ── */}
-      <footer style={{ background: P.carbon, color:"#C8BFB0", padding:"48px 32px", marginTop:80 }}>
-        <div style={{ maxWidth:1100, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:24 }}>
+      <footer style={{ background: P.carbon, color:"#C8BFB0", padding: isMobile ? "32px 18px" : "48px 32px", marginTop: isMobile ? 40 : 80 }}>
+        <div className="madre-footer-inner" style={{ maxWidth:1100, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:24 }}>
           <div>
             <div style={{ fontFamily: P.headFont, fontSize:20, fontWeight:700, color:"#FAF7F2", marginBottom:4 }}>MADRE & Co</div>
             <div style={{ fontSize:12, color: P.muted }}>Panadería Artesanal · Santiago, Chile</div>
