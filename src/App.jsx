@@ -6,18 +6,44 @@ const WHATSAPP_MSG    = encodeURIComponent("Hola, me gustaría hacer un pedido d
 const INSTAGRAM       = ""; // dejar vacío hasta tener handle definido
 const WA_URL          = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`;
 
-/* ─── Paleta: Cobalto + Corteza Dorada ─────────────────── */
-const P = {
-  bg:       "#F7F5EF",
-  card:     "#FDFCF8",
-  carbon:   "#14305A",
-  accent:   "#D4943C",    // corteza dorada — botones de acción
-  support:  "#0F2442",    // cobalto oscuro para bloques dark
-  border:   "#DDD8CE",
-  muted:    "#7A7568",
-  light:    "#F0EDE6",
-  headFont: "'Cormorant Garamond', Georgia, serif",
-  bodyFont: "'DM Sans', system-ui, sans-serif",
+/* ─── Paletas ───────────────────────────────────────────── */
+const PALETTES = {
+  "Cobalto + Corteza": {
+    bg:       "#F7F5EF",
+    card:     "#FDFCF8",
+    carbon:   "#14305A",
+    accent:   "#D4943C",
+    support:  "#0F2442",
+    border:   "#DDD8CE",
+    muted:    "#7A7568",
+    light:    "#F0EDE6",
+    headFont: "'Cormorant Garamond', Georgia, serif",
+    bodyFont: "'DM Sans', system-ui, sans-serif",
+  },
+  "Harina y Carbón": {
+    bg:       "#F4EDE0",
+    card:     "#FBF7EF",
+    carbon:   "#1C110A",
+    accent:   "#B84030",
+    support:  "#3D5830",
+    border:   "#DDD3C0",
+    muted:    "#8A7A65",
+    light:    "#EDE5D8",
+    headFont: "'Cormorant Garamond', Georgia, serif",
+    bodyFont: "'DM Sans', system-ui, sans-serif",
+  },
+  "Horno y Sobremesa": {
+    bg:       "#F4EDE0",
+    card:     "#FBF7EF",
+    carbon:   "#130D05",
+    accent:   "#B87020",
+    support:  "#1A3D28",
+    border:   "#DDD3C0",
+    muted:    "#8A7A65",
+    light:    "#EDE5D8",
+    headFont: "'DM Sans', system-ui, sans-serif",
+    bodyFont: "'DM Sans', system-ui, sans-serif",
+  },
 };
 
 /* ─── Products ─────────────────────────────────────────────── */
@@ -41,8 +67,10 @@ const fmtCLP = (n) => "$" + Math.round(n).toLocaleString("es-CL");
 
 /* ══════════════════════════════════════════════════════════════ */
 export default function MadreWeb() {
+  const [palKey,  setPalKey]  = useState("Cobalto + Corteza");
   const [page,    setPage]    = useState("inicio");
   const [menuOpen,setMenuOpen]= useState(false);
+  const P = PALETTES[palKey];
 
   useEffect(() => {
     const l1 = document.createElement("link");
@@ -64,6 +92,21 @@ export default function MadreWeb() {
 
   return (
     <div style={{ fontFamily: P.bodyFont, background: P.bg, color: P.carbon, minHeight:"100vh", transition:"background 0.4s, color 0.4s" }}>
+
+      {/* ── Palette toggle ── */}
+      <div style={{ position:"fixed", bottom:24, left:16, zIndex:200, display:"flex", flexDirection:"column", gap:6 }}>
+        {Object.keys(PALETTES).map(k=>(
+          <button key={k} onClick={()=>setPalKey(k)} style={{
+            padding:"6px 12px", fontSize:10, fontWeight:600,
+            fontFamily: P.bodyFont, letterSpacing:"0.05em", textTransform:"uppercase",
+            background: k===palKey ? P.carbon : P.card,
+            color:      k===palKey ? P.bg     : P.muted,
+            border: `1px solid ${k===palKey ? P.carbon : P.border}`,
+            borderRadius:20, cursor:"pointer", transition:"all 0.3s",
+            whiteSpace:"nowrap",
+          }}>{k}</button>
+        ))}
+      </div>
 
       {/* ── WhatsApp FAB ── */}
       <a href={WA_URL} target="_blank" rel="noreferrer" style={{
