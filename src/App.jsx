@@ -1,37 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 
-/* ─── CONFIG — actualiza estos valores ─────────────────────── */
-const WHATSAPP_NUMBER = "56942329405"; // sin + ni espacios
-const WHATSAPP_MSG    = encodeURIComponent("Hola, me gustaría hacer un pedido de MADRE 🍞");
-const INSTAGRAM       = "@madre.co"; // actualiza cuando lo tengas
+/* ─── CONFIG ────────────────────────────────────────────── */
+const WHATSAPP_NUMBER = "56942329405";
+const WHATSAPP_MSG    = encodeURIComponent("Hola, me gustaría hacer un pedido de MADRE");
+const INSTAGRAM       = ""; // dejar vacío hasta tener handle definido
 const WA_URL          = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`;
 
-/* ─── Paletas ───────────────────────────────────────────────── */
-const PALETTES = {
-  "Harina y Carbón": {
-    bg:       "#F4EDE0",
-    card:     "#FBF7EF",
-    carbon:   "#1C110A",
-    accent:   "#B84030",   // rojo terroso / barro cocido
-    support:  "#3D5830",   // verde oliva profundo
-    border:   "#DDD3C0",
-    muted:    "#8A7A65",
-    headFont: "'Cormorant Garamond', 'Libre Baskerville', Georgia, serif",
-    bodyFont: "'DM Sans', system-ui, sans-serif",
-    label:    "Harina y Carbón",
-  },
-  "Horno y Sobremesa": {
-    bg:       "#F4EDE0",
-    card:     "#FBF7EF",
-    carbon:   "#130D05",
-    accent:   "#B87020",   // ámbar profundo / dorado quemado
-    support:  "#1A3D28",   // verde botella
-    border:   "#DDD3C0",
-    muted:    "#8A7A65",
-    headFont: "'DM Sans', system-ui, sans-serif",
-    bodyFont: "'DM Sans', system-ui, sans-serif",
-    label:    "Horno y Sobremesa",
-  },
+/* ─── Paleta: Cobalto + Corteza Dorada ─────────────────── */
+const P = {
+  bg:       "#F7F5EF",
+  card:     "#FDFCF8",
+  carbon:   "#14305A",
+  accent:   "#D4943C",    // corteza dorada — botones de acción
+  support:  "#0F2442",    // cobalto oscuro para bloques dark
+  border:   "#DDD8CE",
+  muted:    "#7A7568",
+  light:    "#F0EDE6",
+  headFont: "'Cormorant Garamond', Georgia, serif",
+  bodyFont: "'DM Sans', system-ui, sans-serif",
 };
 
 /* ─── Products ─────────────────────────────────────────────── */
@@ -55,10 +41,8 @@ const fmtCLP = (n) => "$" + Math.round(n).toLocaleString("es-CL");
 
 /* ══════════════════════════════════════════════════════════════ */
 export default function MadreWeb() {
-  const [palKey,  setPalKey]  = useState("Harina y Carbón");
   const [page,    setPage]    = useState("inicio");
   const [menuOpen,setMenuOpen]= useState(false);
-  const P = PALETTES[palKey];
 
   useEffect(() => {
     const l1 = document.createElement("link");
@@ -80,21 +64,6 @@ export default function MadreWeb() {
 
   return (
     <div style={{ fontFamily: P.bodyFont, background: P.bg, color: P.carbon, minHeight:"100vh", transition:"background 0.4s, color 0.4s" }}>
-
-      {/* ── Palette toggle ── */}
-      <div style={{ position:"fixed", bottom:24, left:16, zIndex:200, display:"flex", flexDirection:"column", gap:6 }}>
-        {Object.keys(PALETTES).map(k=>(
-          <button key={k} onClick={()=>setPalKey(k)} style={{
-            padding:"6px 12px", fontSize:10, fontWeight:600,
-            fontFamily: P.bodyFont, letterSpacing:"0.05em", textTransform:"uppercase",
-            background: k===palKey ? P.carbon : P.card,
-            color:      k===palKey ? P.bg     : P.muted,
-            border: `1px solid ${k===palKey ? P.carbon : P.border}`,
-            borderRadius:20, cursor:"pointer", transition:"all 0.3s",
-            whiteSpace:"nowrap",
-          }}>{k}</button>
-        ))}
-      </div>
 
       {/* ── WhatsApp FAB ── */}
       <a href={WA_URL} target="_blank" rel="noreferrer" style={{
@@ -444,13 +413,13 @@ export default function MadreWeb() {
             </div>
 
             <div style={{ background: P.card, border:`1px solid ${P.border}`, borderRadius:4, padding:32 }}>
-              <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.14em", textTransform:"uppercase", color: P.support, marginBottom:12 }}>Instagram</div>
-              <h3 style={{ fontFamily: P.headFont, fontSize:22, fontWeight:700, margin:"0 0 12px" }}>{INSTAGRAM}</h3>
+              <div style={{ fontSize:10, fontWeight:700, letterSpacing:"0.14em", textTransform:"uppercase", color: P.muted, marginBottom:12 }}>Instagram</div>
+              <h3 style={{ fontFamily: P.headFont, fontSize:22, fontWeight:700, margin:"0 0 12px" }}>Próximamente</h3>
               <p style={{ fontSize:13, lineHeight:1.7, color: P.muted, margin:"0 0 24px" }}>
-                Seguinos para ver el proceso, los panes del día y novedades antes que nadie.
+                Estamos preparando nuestro perfil. Pronto podrás seguirnos para ver el proceso, los panes del día y novedades.
               </p>
-              <div style={{ background: P.border, color: P.muted, padding:"12px 24px", borderRadius:4, fontSize:12, textAlign:"center", letterSpacing:"0.06em" }}>
-                Próximamente
+              <div style={{ background: P.light, color: P.muted, padding:"12px 24px", borderRadius:4, fontSize:12, textAlign:"center", letterSpacing:"0.06em" }}>
+                En construcción
               </div>
             </div>
           </div>
@@ -538,7 +507,7 @@ function ProductCard({ product: p, P, WA_URL, full }) {
 }
 
 function OrderBtn({ P, WA_URL, name, small }) {
-  const msg = encodeURIComponent(`Hola, me gustaría pedir: ${name} 🍞`);
+  const msg = encodeURIComponent(`Hola, me gustaría pedir: ${name}`);
   const url  = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
   return (
     <a href={url} target="_blank" rel="noreferrer" style={{
